@@ -1,11 +1,13 @@
-from flask import Flask, render_template, url_for, flash, redirect, request
+from flask import Flask, render_template, url_for, redirect, request
 from forms import RegistrationForm
 from flask_behind_proxy import FlaskBehindProxy
 from flask_sqlalchemy import SQLAlchemy
 
+# TEST REMOTELY LIKE GOOGLE EXAMPLE, use pythonanywhere address
+
 app = Flask(__name__)
 proxied = FlaskBehindProxy(app)
-app.config['SECRET_KEY'] = '1df9ffd8437d42b30dbf2042fa913737'                # this gets the name of the file so Flask knows it's name
+app.config['SECRET_KEY'] = '2c048f793a7ecdf8178dcd926640eb1a'                # this gets the name of the file so Flask knows it's name
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
@@ -26,7 +28,7 @@ with app.app_context():
 @app.route("/")      
 @app.route("/home")                       # this tells you the URL the method below is related to
 def home():
-    home_message = "Hi, I wanted to explore API's, ORM's, Machine Learning, and more so I decided to make a tool to help \
+    home_message = "I wanted to explore API's, ORM's, Machine Learning, and more so I decided to make a tool to help \
     Youtube Developers! Given several youtube channels/searches, I help you generate a youtube title! Additionally, I \
     Provide you with tags for your video, auto comment-liking, and an auto response feature."
     return render_template('home.html', subtitle='Home Page', text=home_message)       # this prints HTML to the webpage
@@ -45,12 +47,13 @@ def comments():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
-    if form.validate_on_submit(): # checks if entries are valid
+    if form.validate_on_submit():  # works when i do it in incognito!
         user = User(username=form.username.data, email=form.email.data, password=form.password.data)
         db.session.add(user)
         db.session.commit()
-        # flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home')) # if so - send to home page
+
+        return redirect(url_for('home'))
+    # print("Form validation errors:", form.errors) form works
     return render_template('register.html', title='Register', form=form)
 
 
@@ -65,5 +68,5 @@ def webhook():
         return 'Wrong event type', 400
 
 
-if __name__ == '__main__':               # this should always be at the end
+if __name__ == '__main__':         \
     app.run(debug=True, host="0.0.0.0")
